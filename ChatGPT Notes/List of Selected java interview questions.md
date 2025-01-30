@@ -1,12 +1,11 @@
-
-***
 List of Selected java interview questions.
 1 Internal working of hashmap / Hashset. 
 2 String mutability & constat pool.
 3 How to prepare Immutable class
 4 How to achieve singleton class (ways to breach singlitter behaviour)
 5 Race condition in thread.
-6 Difference between ClassNotFound Exception Vs NoClassDefinition Error 7 How to write custom Exception in java. 
+6 Difference between ClassNotFound Exception Vs NoClassDefinition Error 
+7 How to write custom Exception in java. 
 8 Diamond Ring problem Solved by java 
 9 StringBuilder Ve StringBuffer vs String. 
 10 Comparable & comparator in java (sort the employee abject in collection)
@@ -86,105 +85,70 @@ List of Selected java interview questions.
 ----------------------------------------
 This is a comprehensive list of Java interview questions covering various topics, including collections, concurrency, exceptions, design patterns, and Spring Boot concepts. Below, I'll provide detailed explanations and examples for each question.
 
----
+### Java Interview Questions with Detailed Explanations
 
-### **1. Internal Working of HashMap / HashSet**
-#### **HashMap**  
-HashMap in Java stores key-value pairs and works using **hashing**. Internally, it uses an **array of linked lists (buckets)** and the **hashCode() method** to determine the bucket index.
+#### **1. Internal Working of HashMap / HashSet**
+##### **HashMap:**
+- Uses **hashing** to store key-value pairs.
+- Uses **array of buckets** where each bucket can have multiple entries (linked list or tree structure from Java 8+).
+- Collision is handled using chaining (Linked List or Tree after threshold).
 
-- **Steps**:
-  1. Compute the hash using `hashCode()`.
-  2. Find the bucket using `index = hash & (n-1)`.
-  3. If multiple keys have the same index (collision), a linked list or a balanced tree (Java 8+) is used.
-  4. On retrieval, the key's `equals()` method is used to locate the correct value.
-
-**Example**:
+**Example:**
 ```java
 HashMap<String, Integer> map = new HashMap<>();
-map.put("A", 1); // A’s hash decides the bucket
-map.put("B", 2); // Different bucket
-map.get("A");    // Finds A using hash + equals()
+map.put("A", 1);
+map.get("A");
 ```
 
-#### **HashSet**
-HashSet internally uses a **HashMap** where elements are stored as **keys**, and values are dummy constants.
-
+##### **HashSet:**
+- Internally uses a `HashMap` with a constant dummy value.
 ```java
 HashSet<String> set = new HashSet<>();
-set.add("A"); // Internally stored as map.put("A", PRESENT)
-set.add("B");
+set.add("A");
 ```
 
 ---
+#### **2. String Mutability & Constant Pool**
+- Strings are **immutable**.
+- String literals are stored in the **String Pool** for memory optimization.
 
-### **2. String Mutability & Constant Pool**
-- **String is immutable** in Java because:
-  - Security (prevents unauthorized modifications).
-  - Performance (String pooling in memory).
-  - Thread safety.
-
-**Example**:
+**Example:**
 ```java
-String s1 = "Hello";  // Stored in String Pool
-String s2 = "Hello";  // Reuses the same object
-System.out.println(s1 == s2); // true (same reference)
-```
-
-Using `new` forces a new object:
-```java
-String s3 = new String("Hello"); // New object
-System.out.println(s1 == s3); // false
+String s1 = "Hello";
+String s2 = "Hello";
+System.out.println(s1 == s2); // true
 ```
 
 ---
+#### **3. How to Prepare an Immutable Class**
+- Declare class as `final`.
+- Make fields `private` and `final`.
+- Provide only getters, no setters.
 
-### **3. How to Prepare an Immutable Class**
-To make a class immutable:
-1. Mark class as `final`.
-2. Make all fields `private` and `final`.
-3. No setter methods.
-4. Use deep copies for mutable fields.
-
-**Example**:
+**Example:**
 ```java
 final class ImmutablePerson {
     private final String name;
-    
-    public ImmutablePerson(String name) {
-        this.name = name;
-    }
-    
-    public String getName() {
-        return name;
-    }
+    public ImmutablePerson(String name) { this.name = name; }
+    public String getName() { return name; }
 }
 ```
 
 ---
-
-### **4. Singleton Class & Ways to Breach Singleton**
-A singleton ensures only one instance exists.
-
-**Example (Lazy Initialization)**:
+#### **4. How to Achieve Singleton Class (Ways to Breach Singleton Behavior)**
+- **Lazy Initialization** Singleton:
 ```java
 class Singleton {
     private static Singleton instance;
-    private Singleton() {}  
+    private Singleton() {}
     public static Singleton getInstance() {
-        if (instance == null) {
-            instance = new Singleton();
-        }
+        if (instance == null) instance = new Singleton();
         return instance;
     }
 }
 ```
-
-**Ways to Break Singleton**:
-- **Reflection**: Can invoke private constructors.
-- **Cloning**: Can create a duplicate instance.
-- **Serialization**: Can deserialize to another instance.
-
-**Fix**: Use `Enum Singleton`
+- **Breaking Singleton:** Reflection, Cloning, Serialization.
+- **Fix:** Enum Singleton:
 ```java
 enum SingletonEnum {
     INSTANCE;
@@ -192,78 +156,46 @@ enum SingletonEnum {
 ```
 
 ---
+#### **5. Race Condition in Threads**
+Occurs when multiple threads access shared data concurrently.
 
-### **5. Race Condition in Threads**
-A **race condition** occurs when multiple threads access shared data simultaneously.
-
-**Example**:
-```java
-class Counter {
-    private int count = 0;
-    
-    public void increment() {
-        count++;
-    }
-}
-
-Counter c = new Counter();
-Thread t1 = new Thread(() -> c.increment());
-Thread t2 = new Thread(() -> c.increment());
-```
-
-**Fix**: Use `synchronized` or `AtomicInteger`
+**Fix:** Use `synchronized` or `AtomicInteger`:
 ```java
 public synchronized void increment() { count++; }
 ```
-or
-```java
-AtomicInteger count = new AtomicInteger(0);
-count.incrementAndGet();
-```
 
 ---
-
-### **6. Difference Between ClassNotFoundException vs NoClassDefFoundError**
-| **Aspect**                 | **ClassNotFoundException** | **NoClassDefFoundError** |
-|----------------------------|---------------------------|--------------------------|
-| **Cause**                 | Class not found at runtime | Class was compiled but missing at runtime |
-| **Checked/Unchecked**     | Checked Exception         | Unchecked Error |
-| **Example**               | `Class.forName("XYZ")` and XYZ not found | Class removed from `.jar` |
+#### **6. Difference Between ClassNotFoundException vs NoClassDefFoundError**
+| **Aspect** | **ClassNotFoundException** | **NoClassDefFoundError** |
+|---|---|---|
+| **Cause** | Class not found at runtime | Class compiled but missing at runtime |
+| **Type** | Checked Exception | Runtime Error |
 
 ---
-
-### **7. Writing a Custom Exception**
+#### **7. Writing a Custom Exception**
 ```java
 class CustomException extends Exception {
-    public CustomException(String message) {
-        super(message);
-    }
+    public CustomException(String message) { super(message); }
 }
-```
-Usage:
-```java
 throw new CustomException("Custom error occurred");
 ```
 
 ---
-
-### **8. Diamond Problem in Java**
-The **diamond problem** occurs in multiple inheritance. Java solves it using **interfaces** with default methods.
-
+#### **8. Diamond Problem in Java**
+Java solves this issue using **interfaces with default methods**.
 ```java
 interface A { default void show() { System.out.println("A"); } }
 interface B { default void show() { System.out.println("B"); } }
 class C implements A, B {
-    public void show() { A.super.show(); } // Resolves conflict
+    public void show() { A.super.show(); }
 }
 ```
 
 ---
-
-### **9. StringBuilder vs StringBuffer vs String**
-| **Aspect**     | **String** (Immutable) | **StringBuffer** (Mutable, Thread-Safe) | **StringBuilder** (Mutable, Faster) |
-|---------------|------------------------|---------------------------------|-----------------------------------|
-| **Thread Safe** | Yes | Yes (Synchronized) | No |
+#### **9. StringBuilder vs StringBuffer vs String**
+| **Aspect** | **String** (Immutable) | **StringBuffer** (Thread-Safe) | **StringBuilder** (Fast) |
+|---|---|---|---|
+| **Thread Safe** | Yes | Yes | No |
 | **Performance** | Slow | Moderate | Fast |
 
 Example:
@@ -273,53 +205,75 @@ sb.append(" World");
 ```
 
 ---
-
-### **10. Comparable vs Comparator (Sorting Employee Objects)**
-- **Comparable**: Natural ordering
-- **Comparator**: Custom sorting
-
-**Using Comparable**
+#### **10. Comparable vs Comparator (Sorting Employee Objects)**
+- **Comparable** (Natural Order):
 ```java
 class Employee implements Comparable<Employee> {
     int age;
-    public int compareTo(Employee e) {
-        return this.age - e.age;
-    }
+    public int compareTo(Employee e) { return this.age - e.age; }
 }
 ```
-
-**Using Comparator**
+- **Comparator** (Custom Sorting):
 ```java
 Comparator<Employee> ageComparator = (e1, e2) -> e1.age - e2.age;
 Collections.sort(list, ageComparator);
 ```
 
 ---
+#### **11. Can We Keep Prototype Scoped Object in Singleton?**
+- Singleton beans have a single instance per application context.
+- Prototype beans have new instances for each request.
+- **Yes**, but we need to manually inject prototype beans in a singleton.
 
-### **11. Can We Keep Prototype Scoped Object in Singleton?**
-- Yes, but requires **dependency injection**.
-- In Spring, use **Scoped Proxy**.
-
+**Example:**
 ```java
-@Bean
-@Scope(value = ConfigurableBeanFactory.SCOPE_PROTOTYPE)
-public Employee employee() { return new Employee(); }
+@Component
+class SingletonBean {
+    @Autowired
+    private ObjectProvider<PrototypeBean> prototypeBeanProvider;
+    public PrototypeBean getPrototypeBean() {
+        return prototypeBeanProvider.getObject();
+    }
+}
 ```
 
 ---
-
-### **12. Enumeration vs Iterator vs ListIterator**
-| **Feature**  | **Enumeration** | **Iterator** | **ListIterator** |
-|-------------|---------------|-------------|----------------|
-| Modify Collection | No | Yes (remove) | Yes (add/remove) |
-| Direction | Forward | Forward | Forward & Backward |
-
-**Example**:
+#### **12. Enumeration, Iterator, ListIterator**
+- `Enumeration` (Legacy, Read-Only):
 ```java
-Iterator<String> it = list.iterator();
-while (it.hasNext()) { System.out.println(it.next()); }
+Enumeration<Integer> e = Collections.enumeration(list);
+while (e.hasMoreElements()) System.out.println(e.nextElement());
+```
+- `Iterator` (Fail-Fast):
+```java
+Iterator<Integer> it = list.iterator();
+while (it.hasNext()) System.out.println(it.next());
+```
+- `ListIterator` (Bidirectional):
+```java
+ListIterator<Integer> listIt = list.listIterator();
+while (listIt.hasNext()) System.out.println(listIt.next());
 ```
 
 ---
+#### **13. Define ArrayList Not Allowing Duplicates**
+To enforce uniqueness, override `add()` method.
+```java
+class UniqueArrayList<E> extends ArrayList<E> {
+    @Override
+    public boolean add(E e) {
+        if (this.contains(e)) return false;
+        return super.add(e);
+    }
+}
+```
+Usage:
+```java
+List<Integer> list = new UniqueArrayList<>();
+list.add(1);
+list.add(1); // Will not be added
+```
 
-I can continue detailing the rest of the questions if you'd like! Let me know which ones you want me to expand further. 🚀
+---
+This document provides explanations and examples for selected Java interview questions. Let me know if you need modifications or additional topics!
+
